@@ -33,7 +33,7 @@
 
     <build>
         <plugins>
-           <plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
@@ -47,6 +47,23 @@
                     </compilerArgs>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <!--to be imported on other projects-->
+                            <classifier>library-build</classifier>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -184,46 +201,72 @@
                  Ref: https://github.com/diffplug/spotless/tree/main/plugin-maven
             -->
             <plugin>
-              <groupId>com.diffplug.spotless</groupId>
-              <artifactId>spotless-maven-plugin</artifactId>
-              <version>${spotless.version}</version>
-              <configuration>
-                <formats>
-                  <!-- you can define as many formats as you want, each is independent -->
-                  <format>
-                    <!-- define the files to apply to -->
-                    <includes>
-                      <include>.gitignore</include>
-                    </includes>
-                    <!-- define the steps to apply to those files -->
-                    <trimTrailingWhitespace/>
-                    <endWithNewline/>
-                    <indent>
-                      <spaces>true</spaces> <!-- or <tabs>true</tabs> -->
-                      <spacesPerTab>4</spacesPerTab> <!-- optional, default is 4 -->
-                    </indent>
-                  </format>
-                </formats>
-                <!-- define a language-specific format -->
-                <java>
-                  <!-- no need to specify files, inferred automatically, but you can if you want -->
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless.version}</version>
+                <configuration>
+                    <formats>
+                        <!-- you can define as many formats as you want, each is independent -->
+                        <format>
+                            <!-- define the files to apply to -->
+                            <includes>
+                                <include>.gitignore</include>
+                            </includes>
+                            <!-- define the steps to apply to those files -->
+                            <trimTrailingWhitespace/>
+                            <endWithNewline/>
+                            <indent>
+                                <spaces>true</spaces> <!-- or <tabs>true</tabs> -->
+                                <spacesPerTab>4</spacesPerTab> <!-- optional, default is 4 -->
+                            </indent>
+                        </format>
+                    </formats>
+                    <!-- define a language-specific format -->
+                    <java>
+                        <!-- no need to specify files, inferred automatically, but you can if you want -->
 
-                  <!-- apply a specific flavor of google-java-format and reflow long strings -->
-                  <googleJavaFormat>
-                    <version>1.8</version>
-                    <style>AOSP</style>
-                    <reflowLongStrings>true</reflowLongStrings>
-                  </googleJavaFormat>
+                        <!-- apply a specific flavor of google-java-format and reflow long strings -->
+                        <googleJavaFormat>
+                            <version>1.8</version>
+                            <style>AOSP</style>
+                            <reflowLongStrings>true</reflowLongStrings>
+                        </googleJavaFormat>
 
-                  <removeUnusedImports/>
-                  <importOrder/>
+                        <removeUnusedImports/>
+                        <importOrder/>
 
-                </java>
-              </configuration>
+                    </java>
+                </configuration>
             </plugin>
         </plugins>
+        <extensions>
+            <extension>
+                <groupId>com.google.cloud.artifactregistry</groupId>
+                <artifactId>artifactregistry-maven-wagon</artifactId>
+                <version>2.1.0</version>
+            </extension>
+        </extensions>
     </build>
 
+    <distributionManagement>
+        <repository>
+            <id>artifact-registry</id>
+            <url>artifactregistry://asia-southeast2-maven.pkg.dev/lithe-optics-345109/tara-maven</url>
+        </repository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>artifact-registry</id>
+            <url>artifactregistry://asia-southeast2-maven.pkg.dev/lithe-optics-345109/tara-maven</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
     <profiles>
         <profile>
             <id>sign-artifacts</id>
